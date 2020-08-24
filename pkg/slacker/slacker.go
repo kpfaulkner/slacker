@@ -1,24 +1,55 @@
 package slacker
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/kpfaulkner/goui/pkg"
 	"github.com/kpfaulkner/goui/pkg/events"
 	"github.com/kpfaulkner/goui/pkg/widgets"
 	log "github.com/sirupsen/logrus"
 	"image/color"
+	"os"
+	"time"
 )
 
 type Slacker struct {
 	window pkg.Window
+
+	userDetails  UserDetails
+	contacts     []Contact
+	channels     []Channel
+	slackHandler *SlackHandler
+
+	// contacts/channel vpanel.
+	// Will want to have a reference to this for
+	// populating later.
+	contactsChannelsVPanel *widgets.VPanel
 }
 
 func NewSlacker() *Slacker {
 	s := Slacker{}
 
+	// just grab slack key from env var
+	slackKey := os.Getenv("SLACK_KEY")
+	s.slackHandler = NewSlackHandler(slackKey)
+
 	// just keep it simple at 800x600 for now. :)
 	s.window = pkg.NewWindow(800, 600, "Slacker", false, false)
+
+
 	return &s
+}
+
+// ListenForIncomingMessages will loop forever listening for messages.
+func (s *Slacker) ListenForIncomingMessages() error {
+
+	for {
+
+		// sleep a bit so we dont waste resources.
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	return nil
 }
 
 func (s *Slacker) QuitSlacker(event events.IEvent) error {
@@ -53,18 +84,18 @@ func (s *Slacker) SetupUI() error {
 
 	// 2 main sections added to mainHPanel
 	// contactsVPanel goes down complete left side, 100 width, 600-30 (toolbar) in height
-	contactsVPanel := widgets.NewVPanelWithSize("contactsVPanel", 100, 570, &color.RGBA{0, 0, 100, 0xff})
+	s.contactsChannelsVPanel = widgets.NewVPanelWithSize("contactsVPanel", 150, 570, &color.RGBA{0, 0, 100, 0xff})
 
 	// In messagesTypingVPanel we will have 2 vpanels.
-	messagesTypingVPanel := widgets.NewVPanelWithSize("messagesTypingVPanel", 700, 570, &color.RGBA{0, 50, 50, 0xff})
+	messagesTypingVPanel := widgets.NewVPanelWithSize("messagesTypingVPanel", 650, 570, &color.RGBA{0, 50, 50, 0xff})
 
 	// The first for messages the second for typing widget.
-	messagesVPanel := widgets.NewVPanelWithSize("messagesVPanel", 700, 540, &color.RGBA{10, 50, 50, 0xff})
-	typingVPanel := widgets.NewVPanelWithSize("typingVPanel", 700, 30, &color.RGBA{50, 50, 50, 0xff})
+	messagesVPanel := widgets.NewVPanelWithSize("messagesVPanel", 650, 540, &color.RGBA{10, 50, 50, 0xff})
+	typingVPanel := widgets.NewVPanelWithSize("typingVPanel", 650, 30, &color.RGBA{50, 50, 50, 0xff})
 	messagesTypingVPanel.AddWidget(messagesVPanel)
 	messagesTypingVPanel.AddWidget(typingVPanel)
 
-	mainHPanel.AddWidget(contactsVPanel)
+	mainHPanel.AddWidget(s.contactsChannelsVPanel)
 	mainHPanel.AddWidget(messagesTypingVPanel)
 
 	// now add mainHPanel to VPanel.
@@ -73,10 +104,41 @@ func (s *Slacker) SetupUI() error {
 	return nil
 }
 
+// populateContactChannelUI is used to populate the contactsChannelsVPanel with the information in
+// the contacts and channel slices
+func (s *Slacker) populateContactChannelUI() error {
+
+	for _,contact := range s.contacts {
+    tb := widgets.NewTextButton(fmt.Sprintf("CT: %s button", contact.Name),  "CT: "+contact.Name, true,0,0,nil,nil,nil,nil)
+		s.contactsChannelsVPanel.AddWidget(tb)
+	}
+
+	for _,ch := range s.channels {
+		tb := widgets.NewTextButton(fmt.Sprintf("CH: %s button", ch.Name), "CH: "+ch.Name, true,0,0,nil,nil,nil,nil)
+		s.contactsChannelsVPanel.AddWidget(tb)
+	}
+	return nil
+}
+
+
+func (s *Slacker) generateDummyData() {
+	s.channels = []Channel{Channel{Name: "channel1"}, Channel{Name: "channel2"}, Channel{Name: "channel3"}}
+	s.contacts = []Contact{Contact{Name: "contact1"}, Contact{Name: "contact2"}, Contact{Name: "contact3"}}
+}
+
 func (s *Slacker) Run() {
 	s.SetupUI()
-
 	ebiten.SetRunnableInBackground(true)
 	ebiten.SetWindowResizable(true)
+
+	// dummy data for now.
+	s.generateDummyData()
+
+	// generate UI with above dummy data
+	s.populateContactChannelUI()
+
+	go s.ListenForIncomingMessages()
+
+	// UI in main loop
 	s.window.MainLoop()
 }

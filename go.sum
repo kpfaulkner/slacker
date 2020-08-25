@@ -22,6 +22,10 @@ github.com/kpfaulkner/goui v0.0.0-20200815032808-3ea9a595e7f8 h1:cfPq51pN58c9bZl
 github.com/kpfaulkner/goui v0.0.0-20200815032808-3ea9a595e7f8/go.mod h1:IkChUCFwyRCRqgXWrlaRbLJjngQJsylfSDSTJIX39Ks=
 github.com/kpfaulkner/goui v0.0.0-20200821053858-6246698be68e h1:qM5Ed9YhEDwklMMSNU+UifF9uE+DvAvYdwWCcIt0ogo=
 github.com/kpfaulkner/goui v0.0.0-20200821053858-6246698be68e/go.mod h1:IkChUCFwyRCRqgXWrlaRbLJjngQJsylfSDSTJIX39Ks=
+github.com/kpfaulkner/goui v0.0.0-20200825072745-fb08003a2208 h1:XGjOC+RfN2ijjcCWIL+I0w96cLTky76yNsdlZyQfYw8=
+github.com/kpfaulkner/goui v0.0.0-20200825072745-fb08003a2208/go.mod h1:IkChUCFwyRCRqgXWrlaRbLJjngQJsylfSDSTJIX39Ks=
+github.com/kpfaulkner/goui v0.0.0-20200825084012-328a337ba7eb h1:8Ov3om9w2aUOkc/1ZwT7ni68ApIPjjMYGT01Yxl8mNY=
+github.com/kpfaulkner/goui v0.0.0-20200825084012-328a337ba7eb/go.mod h1:IkChUCFwyRCRqgXWrlaRbLJjngQJsylfSDSTJIX39Ks=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=

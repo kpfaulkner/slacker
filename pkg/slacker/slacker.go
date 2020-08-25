@@ -24,9 +24,11 @@ type Slacker struct {
 	messages []Message
 
 	// contacts/channel vpanel.
-	// Will want to have a reference to this for
+
+	// Will want to have a reference to these for
 	// populating later.
 	contactsChannelsVPanel *widgets.VPanel
+	messagesVPanel         *widgets.VPanel
 }
 
 func NewSlacker() *Slacker {
@@ -92,9 +94,9 @@ func (s *Slacker) SetupUI() error {
 	messagesTypingVPanel := widgets.NewVPanelWithSize("messagesTypingVPanel", 650, 570, &color.RGBA{0, 50, 50, 0xff})
 
 	// The first for messages the second for typing widget.
-	messagesVPanel := widgets.NewVPanelWithSize("messagesVPanel", 650, 540, &color.RGBA{10, 50, 50, 0xff})
+	s.messagesVPanel = widgets.NewVPanelWithSize("messagesVPanel", 650, 540, &color.RGBA{10, 50, 50, 0xff})
 	typingVPanel := widgets.NewVPanelWithSize("typingVPanel", 650, 30, &color.RGBA{50, 50, 50, 0xff})
-	messagesTypingVPanel.AddWidget(messagesVPanel)
+	messagesTypingVPanel.AddWidget(s.messagesVPanel)
 	messagesTypingVPanel.AddWidget(typingVPanel)
 
 	mainHPanel.AddWidget(s.contactsChannelsVPanel)
@@ -107,14 +109,16 @@ func (s *Slacker) SetupUI() error {
 }
 
 func (s *Slacker) contactSelected(event events.IEvent) error {
-  log.Debugf("Contact %s selected", event.WidgetID())
+	log.Debugf("Contact %s selected", event.WidgetID())
 
-  msgList, err := s.slackHandler.GetMessagesForContact(event.WidgetID())
-  if err != nil {
-  	return err
-  }
+	msgList, err := s.slackHandler.GetMessagesForContact(event.WidgetID())
+	if err != nil {
+		return err
+	}
 
-  s.messages = msgList
+	s.messages = msgList
+
+	s.populateMessagesUI()
 	return nil
 }
 
@@ -125,6 +129,20 @@ func (s *Slacker) channelSelected(event events.IEvent) error {
 		return err
 	}
 	s.messages = msgList
+	s.populateMessagesUI()
+	return nil
+}
+
+// populateMessagesUI takes the messages in s.Messages and creates the UI elements
+// to display.
+func (s *Slacker) populateMessagesUI() error {
+	s.messagesVPanel.ClearWidgets()
+
+	// messages should be...... labels?
+	for i, msg := range s.messages {
+		l := widgets.NewLabel(fmt.Sprintf("label-%d", i), msg.Text, 400, 40, &color.RGBA{0, 0, 0, 0xff}, nil)
+		s.messagesVPanel.AddWidget(l)
+	}
 	return nil
 }
 
@@ -150,7 +168,7 @@ func (s *Slacker) generateDummyData() {
 }
 
 func (s *Slacker) Run() {
-	log.SetLevel( log.DebugLevel)
+	log.SetLevel(log.DebugLevel)
 	s.SetupUI()
 	ebiten.SetRunnableInBackground(true)
 	ebiten.SetWindowResizable(true)

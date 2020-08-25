@@ -39,3 +39,34 @@ func (sh *SlackHandler) IncomingMessageLoop() error {
 
 	return nil
 }
+
+func (sh *SlackHandler) GetMessagesForContact(contactID string) ([]Message,error){
+
+	// just create some dummy messages.
+	// Dont know what the message format looks like yet.
+	m := []Message{}
+
+	m = append(m, Message{ Text: contactID + " message1"})
+	m = append(m, Message{ Text: contactID + " message2"})
+	m = append(m, Message{ Text: contactID + " message3"})
+	m = append(m, Message{ Text: contactID + " message4"})
+	m = append(m, Message{ Text: contactID + " message5"})
+
+
+	return m,nil
+}
+
+func (sh *SlackHandler) GetMessagesForChannel(channelID string) ([]Message,error){
+	// just create some dummy messages.
+	// Dont know what the message format looks like yet.
+	m := []Message{}
+
+	m = append(m, Message{ Text: channelID + " message6"})
+	m = append(m, Message{ Text: channelID + " message7"})
+	m = append(m, Message{ Text: channelID + " message8"})
+	m = append(m, Message{ Text: channelID + " message9"})
+	m = append(m, Message{ Text: channelID + " message0"})
+
+
+	return m,nil
+}

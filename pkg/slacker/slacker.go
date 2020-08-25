@@ -20,6 +20,9 @@ type Slacker struct {
 	channels     []Channel
 	slackHandler *SlackHandler
 
+	// messages to display.
+	messages []Message
+
 	// contacts/channel vpanel.
 	// Will want to have a reference to this for
 	// populating later.
@@ -35,7 +38,6 @@ func NewSlacker() *Slacker {
 
 	// just keep it simple at 800x600 for now. :)
 	s.window = pkg.NewWindow(800, 600, "Slacker", false, false)
-
 
 	return &s
 }
@@ -104,22 +106,43 @@ func (s *Slacker) SetupUI() error {
 	return nil
 }
 
+func (s *Slacker) contactSelected(event events.IEvent) error {
+  log.Debugf("Contact %s selected", event.WidgetID())
+
+  msgList, err := s.slackHandler.GetMessagesForContact(event.WidgetID())
+  if err != nil {
+  	return err
+  }
+
+  s.messages = msgList
+	return nil
+}
+
+func (s *Slacker) channelSelected(event events.IEvent) error {
+	log.Debugf("Channel %s selected", event.WidgetID())
+	msgList, err := s.slackHandler.GetMessagesForChannel(event.WidgetID())
+	if err != nil {
+		return err
+	}
+	s.messages = msgList
+	return nil
+}
+
 // populateContactChannelUI is used to populate the contactsChannelsVPanel with the information in
 // the contacts and channel slices
 func (s *Slacker) populateContactChannelUI() error {
 
-	for _,contact := range s.contacts {
-    tb := widgets.NewTextButton(fmt.Sprintf("CT: %s button", contact.Name),  "CT: "+contact.Name, true,0,0,nil,nil,nil,nil)
+	for _, contact := range s.contacts {
+		tb := widgets.NewTextButton(fmt.Sprintf("CT: %s button", contact.Name), "CT: "+contact.Name, true, 0, 0, nil, nil, nil, s.contactSelected)
 		s.contactsChannelsVPanel.AddWidget(tb)
 	}
 
-	for _,ch := range s.channels {
-		tb := widgets.NewTextButton(fmt.Sprintf("CH: %s button", ch.Name), "CH: "+ch.Name, true,0,0,nil,nil,nil,nil)
+	for _, ch := range s.channels {
+		tb := widgets.NewTextButton(fmt.Sprintf("CH: %s button", ch.Name), "CH: "+ch.Name, true, 0, 0, nil, nil, nil, s.channelSelected)
 		s.contactsChannelsVPanel.AddWidget(tb)
 	}
 	return nil
 }
-
 
 func (s *Slacker) generateDummyData() {
 	s.channels = []Channel{Channel{Name: "channel1"}, Channel{Name: "channel2"}, Channel{Name: "channel3"}}
@@ -127,6 +150,7 @@ func (s *Slacker) generateDummyData() {
 }
 
 func (s *Slacker) Run() {
+	log.SetLevel( log.DebugLevel)
 	s.SetupUI()
 	ebiten.SetRunnableInBackground(true)
 	ebiten.SetWindowResizable(true)
